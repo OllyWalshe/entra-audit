@@ -98,6 +98,21 @@ function Connect-GraphReadOnly {
     }
 }
 
+function Get-ODataType {
+    param($Obj)
+
+    # v2 Graph SDK commonly stores @odata.type here
+    $t = Get-AdditionalProp $Obj "@odata.type"
+    if ($t) { return $t }
+
+    # fallback: some objects expose it as ODataType
+    if ($Obj.PSObject.Properties.Name -contains "ODataType") { return $Obj.ODataType }
+
+    # fallback: last resort, use the .NET type name
+    return $Obj.GetType().FullName
+}
+
+
 # ---------------- Main Execution ----------------
 
 $runFolder = New-RunFolder -Root $OutputRoot
@@ -137,7 +152,7 @@ try {
                     RoleName          = $role.DisplayName
                     RoleId            = $role.Id
                     MemberId          = $m.Id
-                    MemberType        = $m.'@odata.type'
+                    MemberType        = Get-ODataType $m
                     MemberDisplayName = Get-AdditionalProp $m "displayName"
                     MemberUPN         = Get-AdditionalProp $m "userPrincipalName"
                     MemberMail        = Get-AdditionalProp $m "mail"
