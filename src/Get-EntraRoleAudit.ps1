@@ -145,9 +145,12 @@ try {
         Write-Log -LogFile $logFile -Message "Role: $($role.DisplayName)"
 
         try {
-            $members = Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id -All
+            
 
-            foreach ($m in $members) {
+            $members = Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id -All
+            $memberList = @($members)  # forces null/single/many into an array
+
+            foreach ($m in $memberList) {
                 $results.Add([pscustomobject]@{
                     RoleName          = $role.DisplayName
                     RoleId            = $role.Id
@@ -159,7 +162,9 @@ try {
                 })
             }
 
-            Write-Log -LogFile $logFile -Message "  Members found: $($members.Count)"
+            Write-Log -LogFile $logFile -Message "  Members found: $($memberList.Count)"
+
+
         }
         catch {
             Write-Log -LogFile $logFile -Level "ERROR" -Message "Failed on role $($role.DisplayName): $($_.Exception.Message)"
