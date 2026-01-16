@@ -91,7 +91,11 @@ function Connect-GraphReadOnly {
         Connect-MgGraph -TenantId $Tenant -Scopes $scopes | Out-Null
     }
 
-    Select-MgProfile -Name "v1.0" | Out-Null
+    # Some Graph module versions include Select-MgProfile; others don't.
+    # Default is typically v1.0, so this is optional.
+    if (Get-Command -Name Select-MgProfile -ErrorAction SilentlyContinue) {
+        Select-MgProfile -Name "v1.0" | Out-Null
+    }
 }
 
 # ---------------- Main Execution ----------------
